@@ -77,7 +77,7 @@ export default function Login() {
             />
             <button type="submit">Login</button>
             <span>
-              Don'r have an account? <Link to="/register">Register</Link>
+              Don't have an account? <Link to="/register">Register</Link>
             </span>
           </div>
           <div className="gif">

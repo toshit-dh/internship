@@ -19,5 +19,8 @@ const userSchema = mongoose.Schema({
         required: true,
         min: 8,
     },
+    data : {
+        type: Object,
+    }
 })
 module.exports = mongoose.model("Users",userSchema)
