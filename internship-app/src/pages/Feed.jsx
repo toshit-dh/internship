@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Post from "../components/Post";
 import Chat from "../assets/images/chatbot.png";
@@ -10,30 +10,49 @@ import Bot from "../components/Bot";
 import Carousel from "../components/Carousel";
 import { useSelector } from "react-redux";
 import { selectUserData } from "../store/index";
+import Recruit from "../components/Recruit";
+import axios from "axios";
+import { getRecruitersRoute } from "../utils/api-routes";
 export default function Feed() {
-  const [section, setSection] = useState("Chat");
+  const [section, setSection] = useState("Analytics");
   const userData = useSelector(selectUserData);
   const [bot, isBot] = useState(false);
+  const [loading, isLoaded] = useState(false);
   const images = [FO, LO, MO, PS];
-  const arr = [1, 1, 1, 1, 1, 1];
+
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    console.log(data);
+    async function get() {
+      try {
+        const response = await axios.get(getRecruitersRoute);
+        setData(response.data);
+        isLoaded(true);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    }
+    get();
+  }, [loading]);
+
   return (
     <Container>
-      <div className="posts">
-        {arr.map(() => (
-          <Post />
-        ))}
-      </div>
+      {loading && (
+        <div className="posts">
+          {data.map((item) => (
+            <Post username={item.username} image={item.recruitments.imageUrl} />
+          ))}
+        </div>
+      )}
       <div className="bot">
         <img src={Chat} alt="bot" onClick={() => isBot(!bot)} />
       </div>
       <div className="section">
         <div className="topbar">
-          <h1>Analytics</h1>
-          <h1>Chat</h1>
-          {userData.userType === "worker" ? (
-            <h1>Recommendations</h1>
-          ) : (
-            <h1>Recruitment</h1>
+          <h1 onClick={() => setSection("Analytics")}>Analytics</h1>
+          {userData.userType === "recruiter" && (
+            <h1 onClick={() => setSection("Recruit")}>Recruit</h1>
           )}
         </div>
         <div className="sec">
@@ -43,16 +62,11 @@ export default function Feed() {
               <Carousel images={images} />
             </div>
           )}
-          {
-            section === "Recommendations" && (
-      <></>
-            )
-          }
-          {
-            section === "Chat" && <div className="chat">
-            
+          {section === "Recruit" && (
+            <div className="recruit">
+              <Recruit />
             </div>
-          }
+          )}
         </div>
       </div>
       {bot && (
@@ -109,7 +123,7 @@ const Container = styled.div`
       border: 0.1rem solid #4e3eff;
     }
   }
-  .section{
+  .section {
     height: 100%;
     width: 100%;
     background-color: #ffffff39;
@@ -119,34 +133,35 @@ const Container = styled.div`
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    .topbar{
-        position: absolute;
-        top: 0;
-        width: 100vh;
-        background-color: #282a34;
-        display: flex;
-        justify-content: space-between;
-        gap: 1rem;
-        h1{
-            padding: 0 1rem;
-            color: white;
-        }
+    .topbar {
+      position: absolute;
+      top: 0;
+      width: 100vh;
+      background-color: #282a34;
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      h1 {
+        cursor: pointer;
+        padding: 0 1rem;
+        color: white;
+      }
     }
-    .sec{
-        .analysis{
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            h1{
-                color: white;
-            }
-            img{
-                border-radius: 3rem;
-            }
+    .sec {
+      .analysis {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        h1 {
+          color: white;
         }
-        .chat{}
+        img {
+          border-radius: 3rem;
+        }
+      }
+      .chat {
+      }
     }
   }
 `;
-

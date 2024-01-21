@@ -1,16 +1,14 @@
 import React from "react";
 import styled from "styled-components";
 import Logo from "../assets/images/logo.png";
-import { UseSelector } from "react-redux";
-import {selectUserData} from '../store/index'
-export default function Post() {
+export default function Post({username,image}) {
   return (
     <Container>
       <div className="top">
         <div className="user">
           <img src={Logo} alt="dp" />
           <div className="detail">
-            <h4>Username</h4>
+            <h4>{username}</h4>
             <h5>...see more</h5>
             {
               <div className="more">
@@ -24,7 +22,7 @@ export default function Post() {
         </div>
       </div>
       <div className="slider">
-        <img src={Logo} alt="" />
+        <img src={`http://localhost:5000/${image}`} alt="" />
       </div>
     </Container>
   );

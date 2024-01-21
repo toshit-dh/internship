@@ -38,7 +38,6 @@ export default function FillData() {
     const savedFormData = localStorage.getItem("formData");
     if (savedFormData) {
       setFormData(JSON.parse(savedFormData));
-      console.log(savedFormData);
     }
   }, []);
   const handleChange = (e) => {

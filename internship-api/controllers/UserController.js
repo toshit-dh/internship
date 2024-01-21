@@ -49,7 +49,7 @@ module.exports.postData = async (req, res, next) => {
   try {
     console.log("ji");
     const { id } = req.params;
-    const data = req.body
+    const data = req.body;
     console.log(data);
     const user = await User.findOne({ _id: id });
     if (!user) return res.json({ msg: "No user found", status: false });
@@ -58,6 +58,45 @@ module.exports.postData = async (req, res, next) => {
     await user.save();
     console.log("done");
     return res.json({ msg: "Data updated successfully", status: true });
+  } catch (e) {
+    next(e);
+  }
+};
+module.exports.recruit = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    console.log(id);
+    const user = await User.findOne({ _id: id });
+    if (!user) return res.json({ msg: "No user found", status: false });
+    if (user.data.userType === "worker")
+      return res.json({ msg: "Unauthorised", status: false });
+    const data = req.body;
+    console.log(data);
+    let recruit = [];
+    if (!user.recruitments) {
+      user.recruitments = recruit;
+    } else {
+      recruit = user.recruitments;
+    }
+    const filename = req.file.filename
+    const imageUrl = `/uploads/images/${filename}`;
+    recruit.push({...data,imageUrl});
+    console.log("pushed");
+    await user.save();
+  } catch (e) {
+    next(e);
+  }
+};
+module.exports.getRecruiters = async (req, res, next) => {
+  try {
+    console.log("ji");
+    const recruiters = await User.find({ 'data.userType': 'recruiter' }).populate('recruitments');
+    const recruiterData = recruiters.map(recruiter => ({
+      username: recruiter.username, 
+      recruitments: recruiter.recruitments,
+    }));
+    console.log(recruiterData);
+    return res.json(recruiterData);
   } catch (e) {
     next(e);
   }

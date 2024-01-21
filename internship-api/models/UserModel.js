@@ -21,6 +21,9 @@ const userSchema = mongoose.Schema({
     },
     data : {
         type: Object,
+    },
+    recruitments : {
+        type: Array
     }
 })
 module.exports = mongoose.model("Users",userSchema)

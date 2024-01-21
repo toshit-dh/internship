@@ -3,13 +3,16 @@ import styled from "styled-components";
 
 export default function Bot() {
   const embeddedUrl = "https://intern-bot-fnh7ksmlfcgy7dawdyxapc.streamlit.app";
-
+  const url = "https://internship-recommendorsystem-yy5pxghmfe69z3jv564apb.streamlit.app/"
   const handleRedirect = () => {
     window.open(embeddedUrl, "_blank");
   };
-
+  const handleRedirect1 = () => {
+    window.open(url, "_blank");
+  };
   return (
-    <div>
+    <div style={{display: 'flex', flexDirection: 'column', gap: '1rem'}}>
+      <Button onClick={handleRedirect1}>Open Recommend Bot</Button>
       <Button onClick={handleRedirect}>Open Intern Bot</Button>
     </div>
   );
