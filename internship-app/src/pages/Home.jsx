@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setUserId, selectUserId ,selectUserData, fetchUserData} from "../store/index";
 import styled from 'styled-components';
 import FillData from '../components/FillData';
+import Feed from './Feed';
 export default function Home() {
   const navigate = useNavigate()
   const dispatch = useDispatch();
@@ -26,7 +27,7 @@ export default function Home() {
   return (
     <Container>
       {
-        !userData && <FillData/>
+        !userData ? <FillData/> : <Feed/>
       }
     </Container>
   )

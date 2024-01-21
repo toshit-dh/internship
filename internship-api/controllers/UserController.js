@@ -14,7 +14,7 @@ module.exports.register = async (req, res, next) => {
     const hashPass = await bcrypt.hash(password, 10);
     const user = await User.create({ username, email, password: hashPass });
     delete user.password;
-    const token = jwt.sign({user: user._id},jwtkey,)
+    const token = jwt.sign({ user: user._id }, jwtkey);
     return res.json({ status: true, token });
   } catch (e) {
     next(e);
@@ -28,22 +28,37 @@ module.exports.login = async (req, res, next) => {
     if (!(await bcrypt.compare(password, user.password)))
       return res.json({ msg: "Wrong Password", status: false });
     else {
-      const token = jwt.sign({user: user._id},jwtkey)
+      const token = jwt.sign({ user: user._id }, jwtkey);
       return res.json({ status: true, token });
     }
   } catch (e) {
     next(e);
   }
 };
-module.exports.getData = async (req,res,next) => {
-    try {
-        const {id} = req.params
-        console.log(id);
-        const user = await User.findOne({_id: id})
-        if (!user) return res.json({ msg: "No user found", status: false })
-        else {console.log(user.data);
-            return res.json(user.data)}
-    } catch (e) {
-        next(e)
-    }
-}
+module.exports.getData = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findOne({ _id: id });
+    if (!user) return res.json({ msg: "No user found", status: false });
+    else return res.json(user.data);
+  } catch (e) {
+    next(e);
+  }
+};
+module.exports.postData = async (req, res, next) => {
+  try {
+    console.log("ji");
+    const { id } = req.params;
+    const data = req.body
+    console.log(data);
+    const user = await User.findOne({ _id: id });
+    if (!user) return res.json({ msg: "No user found", status: false });
+    user.data = data;
+    console.log("saved");
+    await user.save();
+    console.log("done");
+    return res.json({ msg: "Data updated successfully", status: true });
+  } catch (e) {
+    next(e);
+  }
+};

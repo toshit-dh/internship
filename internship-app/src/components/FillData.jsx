@@ -1,11 +1,16 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import styled from "styled-components";
 import { ToastContainer, toast } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import Logo from "../assets/images/logo.png";
-
+import { useDispatch, useSelector } from "react-redux";
+import { setUserData,selectUserId } from "../store/index";
+import axios from "axios";
+import { postDataRoute } from "../utils/api-routes";
 export default function FillData() {
+  const userId = useSelector(selectUserId)
+  const dispatch = useDispatch();
   const [page, setPage] = useState(1);
   const [formData, setFormData] = useState({
     fullname: "",
@@ -16,8 +21,8 @@ export default function FillData() {
     area: "",
     city: "",
     state: "",
+    profession: "",
   });
-  const navigate = useNavigate();
   const toastOptions = {
     position: "bottom-right",
     autoClose: 8000,
@@ -25,22 +30,83 @@ export default function FillData() {
     draggable: true,
     theme: "dark",
   };
+  useEffect(() => {
+    localStorage.setItem("formData", JSON.stringify(formData));
+  }, [formData, page]);
 
+  useEffect(() => {
+    const savedFormData = localStorage.getItem("formData");
+    if (savedFormData) {
+      setFormData(JSON.parse(savedFormData));
+      console.log(savedFormData);
+    }
+  }, []);
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]:
-        name === "skills" || name === "aoi"
-          ? value.split(",").map((skill) => skill.trim())
-          : value,
-    }));
+
+    setFormData((prevData) => {
+      let updatedData = {
+        ...prevData,
+        [name]:
+          name === "skills" || name === "aoi"
+            ? value.split(",").map((skill) => skill.trim())
+            : value,
+      };
+
+      if (name === "userType" && value === "worker") {
+        updatedData = {
+          ...updatedData,
+          profession: "",
+        };
+      }
+
+      return updatedData;
+    });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (page === 1) {
-      setPage(2);
+    if (formData.fullname.length < 10) {
+      toast.error("Invalid input. Please check your name.", toastOptions);
+      return;
+    }
+    if (formData.mno.length != 10) {
+      toast.error(
+        "Invalid input. Please check your mobile number.",
+        toastOptions
+      );
+      return;
+    }
+    if (formData.city.length <= 2) {
+      toast.error("Invalid input. Please check your city.", toastOptions);
+      return;
+    }
+    if (formData.state.length <= 3) {
+      toast.error("Invalid input. Please check your state.", toastOptions);
+      return;
+    }
+    if (formData.aoi.length <= 1) {
+      toast.error(
+        "Invalid input. Please check your form interest.",
+        toastOptions
+      );
+      return;
+    }
+    if (formData.skills.length <= 1) {
+      toast.error("Invalid input. Please check your skills.", toastOptions);
+      return;
+    } else {
+      dispatch(setUserData(formData));
+      try {
+        console.log(JSON.stringify(formData));
+        const done = await axios.post(`${postDataRoute}${userId.user}`,formData, {
+          headers: {
+            Authorization: localStorage.getItem("user"),
+          },
+        });
+      } catch (e) {
+        console.log(e.message);
+      }
     }
   };
 
@@ -109,7 +175,9 @@ export default function FillData() {
                     Worker
                   </label>
                 </div>
-                <button type="submit">Next Page</button>
+                <button type="button" onClick={() => setPage(2)}>
+                  Next Page
+                </button>
               </>
             )}
             {page === 2 && formData.userType === "recruiter" && (
@@ -134,7 +202,11 @@ export default function FillData() {
             )}
             {page === 2 && formData.userType === "worker" && (
               <>
-                <select name="proffesion">
+                <select
+                  name="proffesion"
+                  onChange={(e) => handleChange(e)}
+                  value={formData.profession}
+                >
                   <option value="">Select Profession</option>
                   <option value="student">Student</option>
                   <option value="ug">Undergraduate (UG)</option>
@@ -222,8 +294,8 @@ const FormContainer = styled.div`
           border: 0.1rem solid #997af0;
           outline: none;
         }
-        option{
-            color: transparent;
+        option {
+          color: black;
         }
       }
       button {
